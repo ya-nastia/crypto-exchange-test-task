@@ -1,11 +1,15 @@
 import styled from 'styled-components';
-import { FontFamily } from '../../types/styles.types';
+import { Breakpoint, FontFamily } from '../../types/styles.types';
 import ArrowDownIcon from '../../assets/icons/arrow-down.svg'
 import CloseIcon from '../../assets/icons/close.svg'
 
 export const InputGroup = styled.div`
   width: 440px;
   height: 50px;
+
+  @media (max-width: ${Breakpoint.MobileTop}) {
+    width: 100%;
+  }
 `;
 
 export const Input = styled.input<{ isOpen: boolean }>`
