@@ -42,7 +42,7 @@ const InputWithDopdown: React.FC = () => {
   }, []);
 
   return (
-    <S.InputGroup className="input-group mb-3">
+    <S.InputGroup className="input-group">
       <S.Input 
         type="text" 
         className="form-control"
