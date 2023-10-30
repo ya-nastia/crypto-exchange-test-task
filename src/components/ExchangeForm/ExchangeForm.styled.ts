@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { FontFamily } from '../../types/styles.types';
+import { Breakpoint, FontFamily } from '../../types/styles.types';
 
 export const ExchangeForm = styled.form`
   width: 100%;
@@ -14,19 +14,44 @@ export const ExchangeInputs = styled.div`
   width: 100%;
   height: 50px;
   margin-bottom: 63px;
+
+  @media (max-width: ${Breakpoint.MobileTop}) {
+    flex-direction: column;
+    gap: 16px;
+    height: auto;
+    margin-bottom: 79px;
+
+    & svg {
+      align-self: flex-end;
+    }
+  }
 `;
 
 export const InputAndButtonContainer = styled(ExchangeInputs)`
   gap: 32px;
+
+  @media (max-width: ${Breakpoint.MobileTop}) {
+    gap: 16px;
+  }
 `;
 
 export const WalletInputContainer = styled.div`
   position: relative;
+
+  @media (max-width: ${Breakpoint.MobileTop}) {
+    width: 100%;
+  }
 `;
 
 export const InputLabel = styled.label`
   position: absolute;
   top: -30px;
+
+  color: #282828;
+  font-family: ${FontFamily.RobotoRegular};
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 23px;
 `;
 
 export const WalletInput = styled.input`
@@ -40,6 +65,10 @@ export const WalletInput = styled.input`
 
   &:focus {
     outline: none;
+  }
+
+  @media (max-width: ${Breakpoint.MobileTop}) {
+    width: 100%;
   }
 `;
 
@@ -58,4 +87,8 @@ export const ExchangeButton = styled.button`
   background: #11B3FE;
   border: none;
   border-radius: 5px;
+
+  @media (max-width: ${Breakpoint.MobileTop}) {
+    width: 100%;
+  }
 `;
