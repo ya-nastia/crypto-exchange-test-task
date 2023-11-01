@@ -48,6 +48,7 @@ export const DropdownButton = styled.button<{ isOpen: boolean }>`
   font-size: 16px;
   font-weight: 400;
   line-height: 23px;
+  text-transform: uppercase;
 
   border-radius: ${({isOpen}) => isOpen ? '0 5px 0 0': '0 5px 5px 0'};
   border: 1px solid #E3EBEF;
@@ -78,13 +79,14 @@ export const DropdownButton = styled.button<{ isOpen: boolean }>`
     align-items: center;
   }
 
-  & svg {
+  & img {
     margin-right: 12px;
   }
 `;
 
 export const DropdownMenu = styled.ul`
   width: 100%;
+  padding: 0;
 
   background: #F6F7F8;
   border: 1px solid #E3EBEF;
@@ -96,6 +98,8 @@ export const DropdownMenu = styled.ul`
 export const DropdownItem = styled.li`
   display: grid;
   grid-template-columns: 20px 1fr 6fr;
+  align-items: center;
+  padding: 12px 16px;
 
   cursor: pointer;
 
@@ -119,4 +123,6 @@ export const Currency = styled.span`
 export const CurrecyAlter = styled(Currency)`
   color: #80A2B6;
   text-transform: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;

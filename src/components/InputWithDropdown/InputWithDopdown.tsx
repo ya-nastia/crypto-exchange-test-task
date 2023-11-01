@@ -1,41 +1,30 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { v4 as uuid } from 'uuid';
 import * as S from './InputWithDropdown.styled';
-import { ReactComponent as BtcIcon } from '../../assets/icons/btc.svg';
-import { ReactComponent as EthIcon } from '../../assets/icons/eth.svg';
-import { ReactComponent as LtcIcon } from '../../assets/icons/ltc.svg';
-import { ReactComponent as XmrIcon } from '../../assets/icons/xmr.svg';
+import { ICurrecy } from '../../types/common.types';
+import { FixedSizeList } from 'react-window';
 
-const currencies = [
-  {
-    icon: <BtcIcon />,
-    name: 'BTC', 
-    longName: 'Bitcoin',
-  },
-  {
-    icon: <EthIcon />,
-    name: 'Eth', 
-    longName: 'Ethereum',
-  },
-  {
-    icon: <LtcIcon />,
-    name: 'LTC', 
-    longName: 'Litecoin',
-  },
-  {
-    icon: <XmrIcon />,
-    name: 'XMR', 
-    longName: 'Monero',
-  },
-]
+interface IInputWithDopdownProps {
+  currencies: any;
+  activeCurrency: ICurrecy | undefined;
+  onCurrencyChange: (currency: ICurrecy) => void;
+  inputValue?: string;
+  handleInputChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-const InputWithDopdown: React.FC = () => {
-  const [activeCurrency, setActiveCurrency] = useState(currencies[0]);
+const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
+  currencies, 
+  activeCurrency, 
+  onCurrencyChange, 
+  inputValue,
+  handleInputChange,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleCurrencyChange = useCallback((currency: { icon: ReactElement, name: string, longName: string }) => {
-    setActiveCurrency(currency);
+  const handleCurrencyChange = useCallback((currency: ICurrecy) => {
+    onCurrencyChange(currency);
     setIsOpen(false);
-  }, []);
+  }, [onCurrencyChange]);
 
   const handleOpenChange = useCallback(() => {
     setIsOpen(current => !current);
@@ -44,11 +33,13 @@ const InputWithDopdown: React.FC = () => {
   return (
     <S.InputGroup className="input-group">
       <S.Input 
-        type="text" 
+        type="number" 
         className="form-control"
         aria-label="Text input with dropdown button" 
         placeholder={isOpen ? 'Search' : ''}
         isOpen={isOpen}
+        value={inputValue}
+        onChange={handleInputChange}
       />
       <S.DropdownButton
         className="btn btn-outline-secondary dropdown-toggle" 
@@ -60,31 +51,38 @@ const InputWithDopdown: React.FC = () => {
         {
           !isOpen && (
             <span>
-              {activeCurrency.icon}
-              {activeCurrency.name}
+              <img src={activeCurrency?.image} alt={`${activeCurrency?.name} icon`} />
+              {activeCurrency?.ticker}
             </span>
           )
         }
       </S.DropdownButton>
       <S.DropdownMenu className={`dropdown-menu dropdown-menu-end ${isOpen ? 'show' : ''}`}>
-        {
-          currencies.map(currency => {
+        <FixedSizeList
+          height={144}
+          width="100%"
+          itemSize={48}
+          itemCount={currencies.length}
+        >
+          {({ index, style }) => {
+            const currency = currencies[index];
             return (
-              <S.DropdownItem 
-                className="dropdown-item" 
-                key={currency.longName}
+              <S.DropdownItem
+                className="dropdown-item"
+                key={uuid()}
                 onClick={() => handleCurrencyChange(currency)}
+                style={style}
               >
-                {currency.icon}
-                <S.Currency>{currency.name}</S.Currency>
-                <S.CurrecyAlter>{currency.longName}</S.CurrecyAlter>
+                <img src={currency.image} alt={`${currency.name} icon`} />
+                <S.Currency>{currency.ticker}</S.Currency>
+                <S.CurrecyAlter>{currency.name}</S.CurrecyAlter>
               </S.DropdownItem>
-            )
-          })
-        }
+            );
+          }}
+        </FixedSizeList>
       </S.DropdownMenu>
     </S.InputGroup>
   )
 }
 
-export default InputWithDopdown;
+export default InputWithDropdown;
