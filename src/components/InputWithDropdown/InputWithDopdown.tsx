@@ -10,6 +10,7 @@ interface IInputWithDopdownProps {
   onCurrencyChange: (currency: ICurrecy) => void;
   inputValue?: string;
   handleInputChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isDisabled: boolean;
 }
 
 const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
@@ -18,6 +19,7 @@ const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
   onCurrencyChange, 
   inputValue,
   handleInputChange,
+  isDisabled,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -40,6 +42,7 @@ const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
         isOpen={isOpen}
         value={inputValue}
         onChange={handleInputChange}
+        disabled={isDisabled}
       />
       <S.DropdownButton
         className="btn btn-outline-secondary dropdown-toggle" 

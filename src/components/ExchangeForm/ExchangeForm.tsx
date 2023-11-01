@@ -2,9 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as S from './ExchangeForm.styled';
 import { InputWithDropdown } from '../InputWithDropdown';
 import { ReactComponent as SwapIcon } from '../../assets/icons/swap.svg';
-import { getListOfCurrencies } from '../../api/api';
+import { getListOfCurrencies, getMinExchangeAmount } from '../../api/api';
 import { ICurrecy } from '../../types/common.types';
 import { ThreeDots } from 'react-loader-spinner';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
 
 const ExchangeForm: React.FC = () => {
   const [currencies, setCurrencies] = useState<ICurrecy[]>([]);
@@ -13,6 +15,8 @@ const ExchangeForm: React.FC = () => {
   const [to, setTo] = useState<ICurrecy>();
   const [fromInput, setFromInput] = useState('');
   const [toInput, setToInput] = useState('');
+  const [minAmount, setMinAmount] = useState('');
+  const [isPairInactive, setIsPairInactive] = useState(false);
 
   const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,6 +56,24 @@ const ExchangeForm: React.FC = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (from && to) {
+      (async() => {
+        try {
+          const res = await getMinExchangeAmount(from.ticker, to.ticker);
+          setMinAmount(res.minAmount);
+          setIsPairInactive(false);
+        } catch (error: unknown) {
+          if (error instanceof AxiosError && error.response?.data.error === 'pair_is_inactive') {
+            setIsPairInactive(true);
+            toast.error('This pair is inactive');
+          }
+          console.log('error getMinExchangeAmount', error)
+        }
+      })();
+    }
+  }, [from, to]);
+
   return (
     <S.ExchangeForm onSubmit={onSubmit}>
       {
@@ -74,6 +96,7 @@ const ExchangeForm: React.FC = () => {
                 currencies={currencies}
                 inputValue={fromInput}
                 handleInputChange={handleFromInputChange}
+                isDisabled={isPairInactive}
               />
               <SwapIcon />
               <InputWithDropdown 
@@ -81,6 +104,7 @@ const ExchangeForm: React.FC = () => {
                 onCurrencyChange={handleToChange} 
                 currencies={currencies}
                 inputValue={toInput}
+                isDisabled={true}
               />
             </S.ExchangeInputs>
 

@@ -25,7 +25,7 @@ export const Input = styled.input<{ isOpen: boolean }>`
   border: 1px solid #E3EBEF;
   background: #F6F7F8;
 
-  &:focus {
+  &:focus, &:disabled {
     background: #F6F7F8;
     border: 1px solid #E3EBEF;
     box-shadow: none;
