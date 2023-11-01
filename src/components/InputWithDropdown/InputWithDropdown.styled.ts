@@ -84,6 +84,15 @@ export const DropdownButton = styled.button<{ isOpen: boolean }>`
   }
 `;
 
+export const ActiveCurrency = styled.span`
+  && {
+    display: inline;
+  }
+  max-width: 56px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 export const DropdownMenu = styled.ul`
   width: 100%;
   padding: 0;

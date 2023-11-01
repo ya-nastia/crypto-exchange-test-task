@@ -51,8 +51,11 @@ const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
         {
           !isOpen && (
             <span>
-              <img src={activeCurrency?.image} alt={`${activeCurrency?.name} icon`} />
-              {activeCurrency?.ticker}
+              {
+                activeCurrency?.image && 
+                <img src={activeCurrency.image} alt={`${activeCurrency?.name} icon`} /> 
+              }
+              <S.ActiveCurrency title={activeCurrency?.ticker}>{activeCurrency?.ticker}</S.ActiveCurrency>
             </span>
           )
         }
@@ -73,9 +76,9 @@ const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
                 onClick={() => handleCurrencyChange(currency)}
                 style={style}
               >
-                <img src={currency.image} alt={`${currency.name} icon`} />
+                {currency.image ? <img src={currency.image} alt={`${currency.name} icon`} /> : <span></span>}
                 <S.Currency>{currency.ticker}</S.Currency>
-                <S.CurrecyAlter>{currency.name}</S.CurrecyAlter>
+                <S.CurrecyAlter title={currency.name}>{currency.name}</S.CurrecyAlter>
               </S.DropdownItem>
             );
           }}
