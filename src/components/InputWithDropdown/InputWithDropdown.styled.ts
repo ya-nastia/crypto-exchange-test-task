@@ -29,7 +29,7 @@ export const Input = styled.input<{ isOpen: boolean }>`
   font-weight: 400;
   line-height: 23px;
 
-  border-radius: ${({isOpen}) => isOpen ? '5px 0 0 0': '5px 0 0 5px'};
+  border-radius: ${({isOpen}) => isOpen ? '5px 0 0 0': '5px 0 0 5px'} !important;
   border: 1px solid #E3EBEF;
   background: #F6F7F8;
 

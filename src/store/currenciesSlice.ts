@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './index';
 import { FetchStatus, ICurrecy } from '../types/common.types';
 import { getEstimatedExchangeAmountThunk, getListOfCurrenciesThunk, getMinExchangeAmountThunk } from './currencies-thunks';

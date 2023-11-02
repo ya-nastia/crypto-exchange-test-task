@@ -4,5 +4,6 @@ export enum FontFamily {
 };
 
 export enum Breakpoint {
-  MobileTop = '744px',
+  TabletTop = '1024px',
+  MobileTop = '768px',
 }
