@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as S from './ExchangeForm.styled';
 import { InputWithDropdown } from '../InputWithDropdown';
 import { ReactComponent as SwapIcon } from '../../assets/icons/swap.svg';
-import { getListOfCurrencies, getMinExchangeAmount } from '../../api/api';
+import { getEstimatedExchangeAmount, getListOfCurrencies, getMinExchangeAmount } from '../../api/api';
 import { ICurrecy } from '../../types/common.types';
 import { ThreeDots } from 'react-loader-spinner';
 import { toast } from 'react-toastify';
@@ -62,17 +62,37 @@ const ExchangeForm: React.FC = () => {
         try {
           const res = await getMinExchangeAmount(from.ticker, to.ticker);
           setMinAmount(res.minAmount);
+          setFromInput(res.minAmount);
           setIsPairInactive(false);
-        } catch (error: unknown) {
+        } catch (error) {
           if (error instanceof AxiosError && error.response?.data.error === 'pair_is_inactive') {
             setIsPairInactive(true);
             toast.error('This pair is inactive');
           }
-          console.log('error getMinExchangeAmount', error)
+          console.log('error getMinExchangeAmount', error);
         }
       })();
     }
   }, [from, to]);
+
+  useEffect(() => {
+    if (from && to && fromInput && Number(fromInput) >= Number(minAmount)) {
+      (async() => {
+        try {
+          const res = await getEstimatedExchangeAmount(from.ticker, to.ticker, fromInput);
+          setToInput(res.estimatedAmount);
+        } catch (error) {
+          if (error instanceof AxiosError && error.response?.data.message === 'deposit_too_small') {
+            setToInput('-');
+          }
+          console.log('getEstimatedExchangeAmount error', error);
+        }
+      })()
+    } else if (from && to && fromInput && Number(fromInput) < Number(minAmount)) {
+      setToInput('-');
+      toast.error('Out of min amount');
+    }
+  }, [from, to, fromInput, minAmount]);
 
   return (
     <S.ExchangeForm onSubmit={onSubmit}>

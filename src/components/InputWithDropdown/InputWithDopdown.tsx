@@ -35,7 +35,7 @@ const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
   return (
     <S.InputGroup className="input-group">
       <S.Input 
-        type="number" 
+        type={handleInputChange ? 'number' : 'text'}
         className="form-control"
         aria-label="Text input with dropdown button" 
         placeholder={isOpen ? 'Search' : ''}
