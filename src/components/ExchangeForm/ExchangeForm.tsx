@@ -76,22 +76,39 @@ const ExchangeForm: React.FC = () => {
   }, [from, to]);
 
   useEffect(() => {
-    if (from && to && fromInput && Number(fromInput) >= Number(minAmount)) {
-      (async() => {
-        try {
-          const res = await getEstimatedExchangeAmount(from.ticker, to.ticker, fromInput);
-          setToInput(res.estimatedAmount);
-        } catch (error) {
-          if (error instanceof AxiosError && error.response?.data.message === 'deposit_too_small') {
-            setToInput('-');
-          }
-          console.log('getEstimatedExchangeAmount error', error);
-        }
-      })()
-    } else if (from && to && fromInput && Number(fromInput) < Number(minAmount)) {
-      setToInput('-');
-      toast.error('Out of min amount');
+
+    let timer: NodeJS.Timeout | null = null;
+
+    if (timer) {
+      clearTimeout(timer);
     }
+
+    if (from && to && fromInput && Number(fromInput) >= Number(minAmount)) {
+      timer = setTimeout(() => {
+        (async () => {
+          try {
+            const res = await getEstimatedExchangeAmount(from.ticker, to.ticker, fromInput);
+            setToInput(res.estimatedAmount);
+          } catch (error) {
+            if (error instanceof AxiosError && error.response?.data.message === 'deposit_too_small') {
+              setToInput('-');
+            }
+            console.log('getEstimatedExchangeAmount error', error);
+          }
+        })();
+      }, 1000);
+    } else if (from && to && fromInput && Number(fromInput) < Number(minAmount)) {
+      timer = setTimeout(() => {
+        setToInput('-');
+        toast.error('Out of min amount');
+      }, 1000);  
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [from, to, fromInput, minAmount]);
 
   return (
