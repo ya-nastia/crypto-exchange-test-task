@@ -2,21 +2,33 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as S from './ExchangeForm.styled';
 import { InputWithDropdown } from '../InputWithDropdown';
 import { ReactComponent as SwapIcon } from '../../assets/icons/swap.svg';
-import { getEstimatedExchangeAmount, getListOfCurrencies, getMinExchangeAmount } from '../../api/api';
-import { ICurrecy } from '../../types/common.types';
+import { FetchStatus, ICurrecy } from '../../types/common.types';
 import { ThreeDots } from 'react-loader-spinner';
 import { toast } from 'react-toastify';
-import { AxiosError } from 'axios';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { 
+  getEstimatedExchangeAmountThunk, 
+  getListOfCurrenciesThunk, 
+  getMinExchangeAmountThunk 
+} from '../../store/currencies-thunks';
+import { selectCurrencies } from '../../store/currenciesSlice';
 
 const ExchangeForm: React.FC = () => {
-  const [currencies, setCurrencies] = useState<ICurrecy[]>([]);
-  const [currenciesLoading, setCurrenciesLoading] = useState(false);
+  const dispatch = useAppDispatch();
+
+  const { 
+    currencies, 
+    currenciesLoadingStatus,
+    minExchangeAmount,
+    minExchangeAmountStatus,
+  } = useAppSelector(selectCurrencies);
+
   const [from, setFrom] = useState<ICurrecy>();
   const [to, setTo] = useState<ICurrecy>();
   const [fromInput, setFromInput] = useState('');
   const [toInput, setToInput] = useState('');
-  const [minAmount, setMinAmount] = useState('');
   const [isPairInactive, setIsPairInactive] = useState(false);
+  const [isExchangeAmountLoading, setIsExchangeAmountLoading] = useState(false);
 
   const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,67 +51,63 @@ const ExchangeForm: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    (async() => {
-      try {
-        setCurrenciesLoading(true);
-
-        const res = await getListOfCurrencies();
-        setCurrencies(res);
+    dispatch(getListOfCurrenciesThunk())
+      .unwrap()
+      .then((res) => {
         setFrom(res[0]);
         setTo(res[1]);
-        
-        setCurrenciesLoading(false);
-      } catch (error) {
-        console.log('getListOfCurrencies error', error);
-        setCurrenciesLoading(false);
-      }
-    })();
-  }, []);
+      })
+      .catch(() => {
+        toast.error('Error loading currencies');
+      });
+  }, [dispatch]);
 
   useEffect(() => {
     if (from && to) {
-      (async() => {
-        try {
-          const res = await getMinExchangeAmount(from.ticker, to.ticker);
-          setMinAmount(res.minAmount);
-          setFromInput(res.minAmount);
+      setIsExchangeAmountLoading(true);
+
+      dispatch(getMinExchangeAmountThunk({ from: from.ticker, to: to.ticker }))
+        .unwrap()
+        .then((res) => {
+          setFromInput(res);
           setIsPairInactive(false);
-        } catch (error) {
-          if (error instanceof AxiosError && error.response?.data.error === 'pair_is_inactive') {
+        })
+        .catch((error) => {
+          if (error === 'This pair is inactive') {
             setIsPairInactive(true);
-            toast.error('This pair is inactive');
           }
-          console.log('error getMinExchangeAmount', error);
-        }
-      })();
+          toast.error(error);
+        })
     }
-  }, [from, to]);
+  }, [from, to, dispatch]);
 
   useEffect(() => {
-
     let timer: NodeJS.Timeout | null = null;
 
     if (timer) {
       clearTimeout(timer);
     }
 
-    if (from && to && fromInput && Number(fromInput) >= Number(minAmount)) {
+    if (from && to && fromInput && Number(fromInput) >= Number(minExchangeAmount)) {
+      setIsExchangeAmountLoading(true);
+
       timer = setTimeout(() => {
-        (async () => {
-          try {
-            const res = await getEstimatedExchangeAmount(from.ticker, to.ticker, fromInput);
-            setToInput(res.estimatedAmount);
-          } catch (error) {
-            if (error instanceof AxiosError && error.response?.data.message === 'deposit_too_small') {
-              setToInput('-');
-            }
-            console.log('getEstimatedExchangeAmount error', error);
-          }
-        })();
+        dispatch(getEstimatedExchangeAmountThunk({from: from.ticker, to: to.ticker, fromInput}))
+          .unwrap()
+          .then((res) => {
+            setToInput(res);
+            setIsExchangeAmountLoading(false);
+          })
+          .catch(() => {
+            setToInput('-');
+            setIsExchangeAmountLoading(false);
+          });      
       }, 1000);
-    } else if (from && to && fromInput && Number(fromInput) < Number(minAmount)) {
+
+    } else if (from && to && fromInput && Number(fromInput) < Number(minExchangeAmount)) {
       timer = setTimeout(() => {
         setToInput('-');
+        setIsExchangeAmountLoading(false);
         toast.error('Out of min amount');
       }, 1000);  
     }
@@ -109,12 +117,12 @@ const ExchangeForm: React.FC = () => {
         clearTimeout(timer);
       }
     };
-  }, [from, to, fromInput, minAmount]);
+  }, [from, to, fromInput, minExchangeAmount, dispatch]);
 
   return (
     <S.ExchangeForm onSubmit={onSubmit}>
       {
-        currenciesLoading ? (
+        currenciesLoadingStatus === FetchStatus.Fetching ? (
           <ThreeDots 
             height="80" 
             width="80" 
@@ -134,6 +142,7 @@ const ExchangeForm: React.FC = () => {
                 inputValue={fromInput}
                 handleInputChange={handleFromInputChange}
                 isDisabled={isPairInactive}
+                isLoading={minExchangeAmountStatus === FetchStatus.Fetching}
               />
               <SwapIcon />
               <InputWithDropdown 
@@ -142,6 +151,7 @@ const ExchangeForm: React.FC = () => {
                 currencies={currencies}
                 inputValue={toInput}
                 isDisabled={true}
+                isLoading={isExchangeAmountLoading}
               />
             </S.ExchangeInputs>
 

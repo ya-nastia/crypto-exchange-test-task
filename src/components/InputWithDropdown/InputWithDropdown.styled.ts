@@ -1,11 +1,19 @@
 import styled from 'styled-components';
 import { Breakpoint, FontFamily } from '../../types/styles.types';
-import ArrowDownIcon from '../../assets/icons/arrow-down.svg'
-import CloseIcon from '../../assets/icons/close.svg'
+import ArrowDownIcon from '../../assets/icons/arrow-down.svg';
+import CloseIcon from '../../assets/icons/close.svg';
 
 export const InputGroup = styled.div`
   width: 440px;
   height: 50px;
+
+  & > div:first-child {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 16px;
+    z-index: 1;
+  }
 
   @media (max-width: ${Breakpoint.MobileTop}) {
     width: 100%;

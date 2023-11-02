@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import * as S from './InputWithDropdown.styled';
 import { ICurrecy } from '../../types/common.types';
 import { FixedSizeList } from 'react-window';
+import { ThreeDots } from 'react-loader-spinner';
 
 interface IInputWithDopdownProps {
   currencies: any;
@@ -11,6 +12,7 @@ interface IInputWithDopdownProps {
   inputValue?: string;
   handleInputChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isDisabled: boolean;
+  isLoading: boolean;
 }
 
 const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
@@ -20,6 +22,7 @@ const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
   inputValue,
   handleInputChange,
   isDisabled,
+  isLoading,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -34,13 +37,24 @@ const InputWithDropdown: React.FC<IInputWithDopdownProps> = ({
 
   return (
     <S.InputGroup className="input-group">
+      {isLoading && 
+        <ThreeDots 
+          height="20" 
+          width="20" 
+          radius="9"
+          color="#11B3FE" 
+          ariaLabel="three-dots-loading"
+          wrapperStyle={{}}
+          visible={true}
+        />
+      }
       <S.Input 
         type={handleInputChange ? 'number' : 'text'}
         className="form-control"
         aria-label="Text input with dropdown button" 
         placeholder={isOpen ? 'Search' : ''}
         isOpen={isOpen}
-        value={inputValue}
+        value={!isLoading ? inputValue : ''}
         onChange={handleInputChange}
         disabled={isDisabled}
       />

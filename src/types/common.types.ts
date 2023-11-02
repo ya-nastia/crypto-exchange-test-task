@@ -11,4 +11,11 @@ export interface ICurrecy {
   tokenContract: string | null,
   buy: boolean,
   sell: boolean,
+};
+
+export enum FetchStatus {
+  Initial = 'initial',
+  Fetching = 'fetching',
+  Success = 'success',
+  Error = 'error',
 }
